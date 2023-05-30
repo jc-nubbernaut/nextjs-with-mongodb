@@ -48,7 +48,8 @@ const GameSection = () => {
       });
       const data = await res.json();
       console.log('data', data);
-      setGames([...games, data]);
+      //setGames([data.games]);
+      setGameInfo({ title: '', score: '', date: '' });
     };
 
     return (
@@ -79,16 +80,34 @@ const GameSection = () => {
     );
   };
 
+  //now we add a delete button to each game
+
+  const handleDelete = async (gameId) => {
+    if (!confirm('Are you sure you want to delete this game?')) return;
+    console.log('delete game', gameId);
+    const res = await fetch('/api/games', {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ gameId: gameId }),
+    });
+    const data = await res.json();
+    console.log('data', data);
+    //setGames(games.filter((game) => game._id !== gameId));
+  };
+
   return (
     <div>
       {games && games.length > 0 ? <h1>Game History</h1> : <h1>No Games</h1>}
       {games && games.length && (
         <ul>
-          {data.games?.map((game) => (
-            <li>
+          {data.games.map((game, index) => (
+            <li key={game._id}>
               <h2>{game.game.title}</h2>
               <h3>{game.game.score}</h3>
               <p>{game.game.date}</p>
+              <button onClick={() => handleDelete(game._id)}>Delete</button>
             </li>
           ))}
         </ul>

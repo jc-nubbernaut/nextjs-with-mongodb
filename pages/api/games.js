@@ -1,4 +1,5 @@
 import clientPromise from '../../lib/mongodb';
+import { ObjectId } from 'mongodb';
 
 export default async function handler(req, res) {
   try {
@@ -20,9 +21,18 @@ export default async function handler(req, res) {
 
       // If the request method is `POST`, insert a new game into the database.
       case 'POST':
-        console.log('post game');
-        const game = JSON.parse(req.body);
-        await db.collection('game-history').insertOne(game);
+        console.log('post game', req.body);
+        const game = req.body;
+        await db.collection('game-history').insertOne({ game: game });
+        res.json({ status: 200, game: game });
+        break;
+      case 'DELETE':
+        console.log('delete game', req.body.gameId);
+        const gameId = req.body.gameId;
+        await db
+          .collection('game-history')
+          .deleteOne({ _id: new ObjectId(gameId) });
+        res.json({ status: 200 });
         break;
     }
   } catch (err) {
