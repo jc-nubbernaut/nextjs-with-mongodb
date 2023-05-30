@@ -1,12 +1,17 @@
 import { useEffect } from 'react';
-import clientPromise from '../lib/mongodb';
+import { useState } from 'react';
+import useSWR from 'swr';
 
-export default function GameSection() {
+const GameSection = () => {
   const [games, setGames] = useState([]);
 
   //use useSWR to fetch data from the API
   const fetcher = (url) => fetch(url).then((res) => res.json());
   const { data, error, loading } = useSWR('/api/games', fetcher);
+
+  if (loading) return <h1>Loading...</h1>;
+
+  if (error) return <h1>Error loading games!</h1>;
 
   //useEffect to set the games state variable
 
@@ -17,10 +22,6 @@ export default function GameSection() {
       setGames(data.games);
     }
   }, [data]);
-
-  if (loading) return <h1>Loading...</h1>;
-
-  if (error) return <h1>Error loading games!</h1>;
 
   //add a form to add a new game
   const NewGameForm = () => {
@@ -47,7 +48,7 @@ export default function GameSection() {
       });
       const data = await res.json();
       console.log('data', data);
-      //setGames([...games, data]);
+      setGames([...games, data]);
     };
 
     return (
@@ -80,17 +81,21 @@ export default function GameSection() {
 
   return (
     <div>
-      <h1>Game History</h1>
-      <ul>
-        {games.map((game) => (
-          <li>
-            <h2>{game.title}</h2>
-            <h3>{game.score}</h3>
-            <p>{game.date}</p>
-          </li>
-        ))}
-      </ul>
+      {games && games.length > 0 ? <h1>Game History</h1> : <h1>No Games</h1>}
+      {games && games.length && (
+        <ul>
+          {data.games?.map((game) => (
+            <li>
+              <h2>{game.game.title}</h2>
+              <h3>{game.game.score}</h3>
+              <p>{game.game.date}</p>
+            </li>
+          ))}
+        </ul>
+      )}
       <NewGameForm />
     </div>
   );
-}
+};
+
+export default GameSection;
